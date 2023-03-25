@@ -1,6 +1,6 @@
 import random
 
-PATH = "alphabet.txt"
+PATH = "../alphabet.txt"
 
 def randomizer(path: str)-> None:
     with open(PATH, "r") as file:
