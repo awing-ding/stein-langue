@@ -22,6 +22,8 @@ class Database():
             text = file.read()
             text = text.split("\n")
             text = [i.split(",") for i in text]
+            del text[(len(text) - 1)]
+            del text[0]
             self.content = text
 
     def add_word(self, word: str, meaning: str, pronunciation: str, definition: str):
@@ -39,14 +41,17 @@ class Database():
         :type definition: str
         """
         with open(self.path, "a") as file:
-            file.write(f"{meaning},{word},{pronunciation},{definition}")
+            file.write(f"{word},{meaning},{pronunciation},{definition}\n")
+        self.open_db()
         self.sort_words()
+    
     
     def sort_words(self):
         """
         It sorts the words in the database alphabetically
         """
-        self.rewrite_db(self.content.sort())
+        self.content.sort(key=lambda x: x[0])
+        self.rewrite_db(self.content)
         
     
     def rewrite_db(self, new_content: list):
@@ -57,21 +62,22 @@ class Database():
         :type new_content: list
         """
         with open(self.path, "w") as file:
+            file.write("word,meaning,pronunciation,definition\n")
             for i in new_content:
-                file.write(f"{i[0]},{i[1]},{i[2]},{i[3]}")
+                file.write(f"{i[0]},{i[1]},{i[2]},{i[3]}\n")
     
-    def merge_awk_db(self, other_db: str):
+    def merge_awk_db(self, awk_db: str):
         """
         It takes a text file made of awkword export and adds each line to the database
         
         :param other_db: The path to the other database file
         :type other_db: str
         """
-        with open(other_db, "r") as file:
+        with open(awk_db, "r") as file:
             text = file.read()
             text = text.split("\n")
         for word in text:
-            self.add_word(word, "", "", "")
+            self.add_word(word, " ", " ", " ")
         self.sort_words()
     
     def merge_db(self, other_db: str):
@@ -87,5 +93,5 @@ class Database():
             text = text.split("\n")
             text = [i.split(",") for i in text]
         for word in text:
-            self.add_word(word[1], word[0], word[2], word[3])
+            self.add_word(word[0], word[1], word[2], word[3])
         self.sort_words()
