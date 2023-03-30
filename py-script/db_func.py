@@ -13,7 +13,7 @@ class Database():
         self.open_db()
         self.sort_words()
 
-    def open_db(self)-> list:
+    def open_db(self)-> None:
         """
         It opens a file, reads it, splits it into a list of lists, and assigns it to the content
         attribute of the class
@@ -26,7 +26,7 @@ class Database():
             del text[0]
             self.content = text
 
-    def add_word(self, word: str, meaning: str, pronunciation: str, definition: str):
+    def add_word(self, word: str, meaning: str, pronunciation: str = " ", definition: str = " ", comment: str = " ", classe: str = " ") -> None:
         """
         It opens the file, writes the word, meaning, pronunciation, and definition to the file, and then
         sorts the words
@@ -41,12 +41,12 @@ class Database():
         :type definition: str
         """
         with open(self.path, "a") as file:
-            file.write(f"{word},{meaning},{pronunciation},{definition}\n")
+            file.write(f"{word},{meaning},{pronunciation},{definition},{comment},{classe}\n")
         self.open_db()
         self.sort_words()
     
     
-    def sort_words(self):
+    def sort_words(self) -> None:
         """
         It sorts the words in the database alphabetically
         """
@@ -54,7 +54,7 @@ class Database():
         self.rewrite_db(self.content)
         
     
-    def rewrite_db(self, new_content: list):
+    def rewrite_db(self, new_content: list) -> None:
         """
         It takes a list of lists, and writes each list to a new line in a file
         
@@ -62,11 +62,11 @@ class Database():
         :type new_content: list
         """
         with open(self.path, "w") as file:
-            file.write("word,meaning,pronunciation,definition\n")
+            file.write("word,meaning,pronunciation,definition,comment,class\n")
             for i in new_content:
-                file.write(f"{i[0]},{i[1]},{i[2]},{i[3]}\n")
+                file.write(f"{i[0]},{i[1]},{i[2]},{i[3]},{i[4]},{i[5]}\n")
     
-    def merge_awk_db(self, awk_db: str):
+    def merge_awk_db(self, awk_db: str) -> None:
         """
         It takes a text file made of awkword export and adds each line to the database
         
@@ -77,10 +77,15 @@ class Database():
             text = file.read()
             text = text.split("\n")
         for word in text:
-            self.add_word(word, " ", " ", " ")
+            present = False
+            for i in self.content:
+                if word == i[0]:
+                    present = True
+            if not present:
+                self.add_word(word, " ", " ", " ", " ", " ")
         self.sort_words()
     
-    def merge_db(self, other_db: str):
+    def merge_db(self, other_db: str) -> None:
         """
         It takes a file name as an argument, reads the file, splits the file into a list of lists, and
         then adds each word to the database
@@ -93,5 +98,5 @@ class Database():
             text = text.split("\n")
             text = [i.split(",") for i in text]
         for word in text:
-            self.add_word(word[0], word[1], word[2], word[3])
+            self.add_word(word[0], word[1], word[2], word[3], word[4], word[5])
         self.sort_words()
